@@ -178,11 +178,52 @@ try {
     }
 
 
-    private fun launch(packageName: String) {
-        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return
+   
+private fun launch(packageName: String) {
+    try {
+        val intent = packageManager
+            .getLaunchIntentForPackage(packageName)
+            ?: return
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        try { startActivity(intent) } catch (_: Exception) { }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+            packageManager.hasSystemFeature(
+                android.content.pm.PackageManager.FEATURE_FREEFORM_WINDOW_MANAGEMENT
+            )
+        ) {
+            val metrics = resources.displayMetrics
+            val width = (metrics.widthPixels * 0.85f).toInt()
+            val height = (metrics.heightPixels * 0.70f).toInt()
+
+            val left = (metrics.widthPixels - width) / 2
+            val top = (metrics.heightPixels - height) / 2
+
+            val bounds = android.graphics.Rect(
+                left,
+                top,
+                left + width,
+                top + height
+            )
+
+            val options = android.app.ActivityOptions
+                .makeBasic()
+                .setLaunchBounds(bounds)
+
+            startActivity(intent, options.toBundle())
+        } else {
+            startActivity(intent)
+        }
+
+    } catch (e: Exception) {
+        android.util.Log.e(
+            "GameSidekick",
+            "Unable to launch $packageName",
+            e
+        )
     }
+}
+
 
     private fun hidePanel() {
         panel?.let { try { wm.removeView(it) } catch (_: Exception) {} }
