@@ -117,27 +117,65 @@ class SidebarService : Service() {
                     setImageDrawable(packageManager.getApplicationIcon(info))
                 }
                 addView(icon, LinearLayout.LayoutParams(dp(34), dp(34)))
-                addView(TextView(this@SidebarService).apply {
-                    text = packageManager.getApplicationLabel(info).toString()
-                    textSize = 14f; setTextColor(Color.WHITE); setPadding(dp(10), 0, 0, 0)
-                }, LinearLayout.LayoutParams(0, dp(42), 1f))
-                setOnClickListener { launch(info.packageName) }
-            }
-            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48))
-            lp.bottomMargin = dp(6)
-            list.addView(row, lp)
-        }
-        if (apps.isEmpty()) list.addView(TextView(this).apply { text = "No launchable apps found."; setTextColor(Color.WHITE) })
-        outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.MATCH_PARENT, dp(390)))
-        panel = outer
-        panelParams = WindowManager.LayoutParams(dp(270), dp(470), overlayType(),
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT).apply {
-            gravity = Gravity.TOP or Gravity.END
-            x = dp(54); y = dp(170)
-        }
-        try { wm.addView(outer, panelParams) } catch (_: Exception) { panel = null; expanded = false }
-    }
+               
+addView(TextView(this@SidebarService).apply {
+    text = packageManager.getApplicationLabel(info).toString()
+    textSize = 14f
+    setTextColor(Color.WHITE)
+    setPadding(dp(10), 0, 0, 0)
+}, LinearLayout.LayoutParams(0, dp(42), 1f))
+
+setOnClickListener { launch(info.packageName) }
+
+}
+
+val lp = LinearLayout.LayoutParams(
+    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+    dp(48)
+)
+
+lp.bottomMargin = dp(6)
+list.addView(row, lp)
+
+}
+
+if (apps.isEmpty()) {
+    list.addView(TextView(this).apply {
+        text = "No launchable apps found."
+        setTextColor(Color.WHITE)
+    })
+}
+
+outer.addView(
+    scroll,
+    LinearLayout.LayoutParams(
+        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+        dp(390)
+    )
+)
+
+panel = outer
+
+panelParams = WindowManager.LayoutParams(
+    dp(270),
+    dp(470),
+    overlayType(),
+    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+    PixelFormat.TRANSLUCENT
+).apply {
+    gravity = Gravity.TOP or Gravity.END
+    x = dp(54)
+    y = dp(170)
+}
+
+try {
+    wm.addView(outer, panelParams)
+} catch (_: Exception) {
+    panel = null
+    expanded = false
+}
+
 
     private fun launch(packageName: String) {
         val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return
