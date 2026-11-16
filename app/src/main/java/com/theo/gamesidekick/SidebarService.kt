@@ -175,6 +175,7 @@ try {
     panel = null
     expanded = false
 }
+    }
 
 
     private fun launch(packageName: String) {
